@@ -22,7 +22,7 @@ end.parse!
 
 if options[:print]
   if not options.include?(:file_path)
-    puts "You must include a file path. Exiting"
+    puts "You must include a file path ( -f or --file option ). Exiting"
     puts ""
     puts opts
   end
