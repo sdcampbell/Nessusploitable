@@ -29,11 +29,16 @@ if options[:print]
     puts opts
   end
   nessus = RubyNessus::Parse.new("#{options[:file_path]}")
-  puts "IP | Hostname | Port | Exploit"
+  puts "IP Address".ljust(15) + "\t" + "Hostname".ljust(30) + "\t" + "Port".ljust(25) + "\t" + "Exploit"
   nessus.scan.each_host do |host|
     host.each_event do |event|
       if event.exploit_framework_metasploit || event.exploitability_ease == "No exploit is required"
-        puts "#{host.ip}\t#{host.hostname}\t##{event.port}\t#{event.name}"
+        if host.hostname.nil?
+          hostname = ""
+        else
+          hostname = host.hostname
+        end
+        puts "#{host.ip.ljust(15)}\t#{hostname.ljust(30)}\t##{event.port.to_s.ljust(25)}\t#{event.name}"
       end
     end
   end
