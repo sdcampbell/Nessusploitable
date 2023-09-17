@@ -5,14 +5,16 @@ require 'ruby-nessus'
 
 time = Time.new
 
+ARGV << '-h' if ARGV.empty?
+
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: nessus-exploitable.rb [options] [path]"
+  opts.banner = "Usage: nessusploitable.rb [options] [path]"
   opts.on('-p', '--print', 'Print to stdout and exit. Requires the -f option.') { |v| options[:print] = v }
   opts.on('-f', '--file PATH', 'File path for a single file.') { |v| options[:file_path] = v }
   opts.on('-d', '--directory PATH', 'Directory path to import multiple .nessus files.') { |v| options[:dir_path] = v }
   opts.on('-h', '--help', "Prints help") do
-    puts "Ruby Nessus - Parses Nessus .nessus files for exploitable vulnerabilities and prints to stdout or outputs a report file in TSV format for Excel"
+    puts "Nessusploitable - Parses Nessus .nessus files for exploitable vulnerabilities and prints to stdout or outputs a report file in TSV format for Excel"
     puts "Import the report data into Excel in Tab Separated Values format."
     puts "Author: Steve Campbell, @lpha3ch0"
     puts opts
@@ -27,11 +29,11 @@ if options[:print]
     puts opts
   end
   nessus = RubyNessus::Parse.new("#{options[:file_path]}")
-  puts "IP\tPort\tExploit"
+  puts "IP | Hostname | Port | Exploit"
   nessus.scan.each_host do |host|
     host.each_event do |event|
       if event.exploit_framework_metasploit || event.exploitability_ease == "No exploit is required"
-        puts "#{host.ip}\t#{event.port}\t#{event.name}"
+        puts "#{host.ip}\t#{host.hostname}\t##{event.port}\t#{event.name}"
       end
     end
   end
