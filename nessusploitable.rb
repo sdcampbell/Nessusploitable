@@ -5,6 +5,14 @@ require 'ruby-nessus'
 
 time = Time.new
 
+def safe_hostname(host)
+  begin
+    host.hostname || host.ip
+  rescue NoMethodError
+    host.ip
+  end
+end
+
 ARGV << '-h' if ARGV.empty?
 
 options = {}
@@ -33,11 +41,7 @@ if options[:print]
   nessus.scan.each_host do |host|
     host.each_event do |event|
       if event.exploit_framework_metasploit || event.exploitability_ease == "No exploit is required"
-        if host.hostname.nil?
-          hostname = ""
-        else
-          hostname = host.hostname
-        end
+        hostname = safe_hostname(host)
         puts "#{host.ip.ljust(15)}\t#{hostname.ljust(30)}\t##{event.port.to_s.ljust(25)}\t#{event.name}"
       end
     end
@@ -53,9 +57,9 @@ if options[:dir_path]
       ness.scan.each_host do |host|
         host.each_event do |event|
           if event.exploitability_ease == "No exploit is required"
-            file.puts "#{event.risk}\t#{host.ip}\t#{host.hostname}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
+            file.puts "#{event.risk}\t#{host.ip}\t#{safe_hostname(host)}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
           elsif event.exploitability_ease == "Exploits are available"
-            file.puts "#{event.risk}\t#{host.ip}\t#{host.hostname}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
+            file.puts "#{event.risk}\t#{host.ip}\t#{safe_hostname(host)}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
           end
         end
       end
@@ -68,9 +72,9 @@ elsif options[:file_path]
     ness.scan.each_host do |host|
       host.each_event do |event|
         if event.exploitability_ease == "No exploit is required"
-          file.puts "#{event.risk}\t#{host.ip}\t#{host.hostname}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
+          file.puts "#{event.risk}\t#{host.ip}\t#{safe_hostname(host)}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
         elsif event.exploitability_ease == "Exploits are available"
-          file.puts "#{event.risk}\t#{host.ip}\t#{host.hostname}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
+          file.puts "#{event.risk}\t#{host.ip}\t#{safe_hostname(host)}\t#{event.port}\t#{event.name}\t#{event.metasploit_name}\t#{event.see_also}"
         end
       end
     end
